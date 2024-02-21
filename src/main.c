@@ -269,7 +269,7 @@ static void usage(void) {
     "  -v                     Verbose output; -v -v for more\n"
     "  -q                     Quell progress output; -q -q for less\n"
     "  -l logfile             Use logfile rather than stderr for diagnostics\n"
-    "  -?                     Display this usage\n"
+    "  -? | --help            Display this usage\n"
     "\navrdude version %s, https://github.com/avrdudes/avrdude\n",
     progname, strlen(cfg) < 24? "config file ": "", cfg, AVRDUDE_FULL_VERSION);
 
@@ -814,7 +814,12 @@ int main(int argc, char *argv[]) {
 #endif
 
   // Process command line arguments
-  while((ch = getopt(argc, argv, "?Ab:B:c:C:DeE:Fi:l:nNp:OP:qrtT:U:vVx:")) != -1) {
+  struct option longopts[] = {
+    {"help", no_argument, NULL, '?'},
+    {NULL,   0,           NULL, 0}
+  };
+  while((ch = getopt(argc, argv, "?Ab:B:c:C:DeE:Fi:l:nNp:OP:qrtT:U:vVx:",
+		     longopts, NULL)) != -1) {
     switch(ch) {
     case 'b':                  // Override default programmer baud rate
       baudrate = str_int(optarg, STR_INT32, &errstr);
