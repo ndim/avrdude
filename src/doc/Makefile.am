@@ -60,7 +60,7 @@ TEXI2HTMLFLAGS += --css-include=$(srcdir)/avrdude.css
 thtml: avrdude.thtml
 avrdude.thtml: avrdude.texi $(srcdir)/version.texi $(srcdir)/avrdude.css $(avrdude_TEXINFOS)
 	$(AM_V_at)rm -rf $(@:.thtml=.tmphtml)
-	$(AM_V_at)if $(TEXI2HTML) -o avrdude.tmphtml $(TEXI2HTMLFLAGS) `test -f 'avrdude.texi' || echo '$(srcdir)/'`avrdude.texi; then \
+	$(AM_V_at)if $(TEXI2HTML) $(TEXI2HTMLFLAGS) -o $(@:.thtml=.tmphtml) `test -f 'avrdude.texi' || echo '$(srcdir)/'`avrdude.texi; then \
 	  rm -rf $@ && mv $(@:.thtml=.tmphtml) $@; \
 	else \
 	  rm -rf $(@:.thtml=.tmphtml); exit 1; \
