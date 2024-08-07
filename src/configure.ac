@@ -183,6 +183,15 @@ fi
 dnl Makefile.am:77: compiling `config_gram.c' with per-target flags requires `AM_PROG_CC_C_O' in `configure.ac'
 AM_PROG_CC_C_O
 
+AC_ARG_VAR([TEXI2HTML], [texi2html converter])
+AS_IF([test "x$TEXI2HTML" = x], [dnl
+  AC_PATH_PROG([TEXI2HTML], [texi2html], [no])
+], [dnl
+  AC_MSG_CHECKING([for TEXI2HTML from variable])
+  AC_MSG_RESULT([$TEXI2HTML])
+])
+AM_CONDITIONAL([HAVE_TEXI2HTML], [test "x$TEXI2HTML" != xno])
+
 # Checks for libraries.
 # For MinGW.
 AC_CHECK_LIB([ws2_32], [WSAStartup])
@@ -447,6 +456,9 @@ AC_ARG_ENABLE(
 		esac],
 	[enabled_doc=no])
 AM_CONDITIONAL([ENABLED_DOC], [test "x$enabled_doc" = xyes])
+AM_COND_IF([ENABLED_DOC], [AM_COND_IF([HAVE_TEXI2HTML], [:], [
+  AC_MSG_ERROR([Fatal: texi2html is required to build the docs])
+])])
 
 AC_ARG_ENABLE(
 	[parport],

@@ -53,7 +53,6 @@ endif # ENABLED_DOC
 # cmake build does.
 ########################################################################
 
-TEXI2HTML = texi2html
 TEXI2HTMLFLAGS =
 TEXI2HTMLFLAGS += --split=node
 TEXI2HTMLFLAGS += --css-include=$(srcdir)/avrdude.css
