@@ -17,9 +17,8 @@
 #
 
 CLEANFILES =
+DISTCLEANFILES =
 EXTRA_DIST =
-
-info_TEXINFOS =
 
 AM_MAKEINFOFLAGS =
 AM_MAKEINFOHTMLFLAGS =
@@ -32,7 +31,9 @@ AM_MAKEINFOHTMLFLAGS += --css-include=$(srcdir)/avrdude.css
 
 AM_MAKEINFOHTMLFLAGS += --split=node
 
-info_TEXINFOS    += avrdude.texi
+info_TEXINFOS = avrdude.texi
+CLEANFILES += avrdude.info
+# DISTCLEANFILES += avrdude.info
 avrdude_TEXINFOS  =
 
 
@@ -80,13 +81,15 @@ install-thtml: avrdude.thtml
 ../avrdude$(EXEEXT):
 	$(MAKE) -C .. avrdude$(EXEEXT)
 
-EXTRA_DIST += programmers.sed
+EXTRA_DIST       += programmers.sed
+CLEANFILES       += $(builddir)/programmers.texi
 avrdude_TEXINFOS += $(builddir)/programmers.texi
 $(builddir)/programmers.texi: ../avrdude$(EXEEXT) ../avrdude.conf $(srcdir)/programmers.sed Makefile
 	../avrdude$(EXEEXT) -C ../avrdude.conf -c \? 2>&1 \
 	|  grep = | sed -f $(srcdir)/programmers.sed \
 	>programmers.texi
 
+CLEANFILES       += $(builddir)/programmer_types.texi
 avrdude_TEXINFOS += $(builddir)/programmer_types.texi
 $(builddir)/programmer_types.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
 	../avrdude$(EXEEXT) -C ../avrdude.conf -c \?type 2>&1 \
@@ -94,13 +97,15 @@ $(builddir)/programmer_types.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
 	| sed "s#<\?\(http://[^ \t,>]*\)>\?#@url{\1}#g" \
 	>programmer_types.texi
 
-EXTRA_DIST += parts.sed
+EXTRA_DIST       += parts.sed
+CLEANFILES       += $(builddir)/parts.texi
 avrdude_TEXINFOS += $(builddir)/parts.texi
 $(builddir)/parts.texi: ../avrdude$(EXEEXT) ../avrdude.conf $(srcdir)/parts.sed Makefile
 	../avrdude$(EXEEXT) -C ../avrdude.conf -p \? 2>&1 \
 	| grep = | sed -f $(srcdir)/parts.sed \
 	>parts.texi
 
+CLEANFILES       += $(builddir)/avrstats.texi
 avrdude_TEXINFOS += $(builddir)/avrstats.texi
 $(builddir)/avrstats.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
 	: > avrstats.texi
@@ -108,3 +113,7 @@ $(builddir)/avrstats.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
 	../avrdude$(EXEEXT) -C ../avrdude.conf -p \? 2>&1 | grep = | wc -l >> avrstats.texi
 	echo -n "@set NUMPROGRAMMERS " >> avrstats.texi
 	../avrdude$(EXEEXT) -C ../avrdude.conf -c \? 2>&1 | grep = | wc -l >> avrstats.texi
+
+# FIXME: Why does this have no effect on avrdude.info?
+dist-hook:
+	cd "$(distdir)" && rm -f $(DISTCLEANFILES) $(CLEANFILES)
