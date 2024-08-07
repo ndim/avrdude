@@ -423,23 +423,18 @@ AC_CHECK_TYPES([ulong_t], [], [], [#include <sys/types.h>])
 
 # Checks for misc stuff.
 
+dnl If you see this definition of the --enable-versioned-doc flag
+dnl after 2025-06-31, feel free to just remove it.
 AC_ARG_ENABLE(
 	[versioned-doc],
 	AS_HELP_STRING([--enable-versioned-doc],
-	               [install docs in directory with version name (default)]),
+	               [install docs in directory with version name (DEPRECATED, use --docdir)]),
 	[case "${enableval}" in
-		yes) versioned_doc=yes ;;
-		no)  versioned_doc=no ;;
+		yes) docdir='$(datadir)/doc/avrdude-$(VERSION)' ;;
+		no)  docdir='$(datadir)/doc/avrdude' ;;
 		*)   AC_MSG_ERROR([bad value ${enableval} for versioned-doc option]) ;;
 		esac],
-	[versioned_doc=yes])
-
-if test "x$versioned_doc" = "xyes"; then
-    DOC_INST_DIR='$(DESTDIR)$(datadir)/doc/avrdude-$(VERSION)'
-else
-    DOC_INST_DIR='$(DESTDIR)$(datadir)/doc/avrdude'
-fi
-AC_SUBST([DOC_INST_DIR])
+	[: use default docdir])
 
 AC_ARG_ENABLE(
 	[doc],
