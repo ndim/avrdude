@@ -27,7 +27,7 @@ dnl 2006-10-23 autoconf 2.60    used to be avrdude's requirement
 dnl 2012-04-24 autoconf 2.69
 dnl 2021-01-28 autoconf 2.71
 dnl
-dnl 2013-06-20 automake 1.14
+dnl 2013-06-20 automake 1.14    adds info-in-builddir
 dnl 2018-02-25 automake 1.16
 dnl 2018-03-11 automake 1.16.1  install-sh symlink fix
 
@@ -59,6 +59,7 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([
   1.14
   foreign
+  info-in-builddir
   subdir-objects
 ])
 
@@ -450,6 +451,7 @@ AC_ARG_ENABLE(
 		*)   AC_MSG_ERROR([bad value ${enableval} for disable-doc option]) ;;
 		esac],
 	[enabled_doc=no])
+AM_CONDITIONAL([ENABLED_DOC], [test "x$enabled_doc" = xyes])
 
 AC_ARG_ENABLE(
 	[parport],
@@ -494,15 +496,6 @@ AC_ARG_ENABLE(
 		*)   AC_MSG_ERROR([bad value ${enableval} for enable-linuxspi option]) ;;
 		esac],
 	[enabled_linuxspi=no])
-
-AC_SUBST([DIST_SUBDIRS_AC], [doc])
-
-if test "x$enabled_doc" = xyes; then
-	SUBDIRS_AC='doc'
-else
-	SUBDIRS_AC=''
-fi
-AC_SUBST([SUBDIRS_AC])
 
 
 # Find the parallel serial device files based on target system

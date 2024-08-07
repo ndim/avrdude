@@ -16,82 +16,95 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-GENERATED_TEXINFOS = \
-	$(builddir)/programmers.texi \
-	$(builddir)/parts.texi \
-	$(builddir)/programmer_types.texi \
-	$(builddir)/avrstats.texi \
-	$(builddir)/version.texi
+CLEANFILES =
+EXTRA_DIST =
 
-CLEANFILES = \
-	$(GENERATED_TEXINFOS) \
-	$(builddir)/stamp-vti
+info_TEXINFOS =
 
-info_TEXINFOS = avrdude.texi
+AM_MAKEINFOFLAGS =
+AM_MAKEINFOHTMLFLAGS =
 
-EXTRA_DIST = \
-	parts.sed \
-	programmers.sed
+# This does NOT create texi2html compatible HTML file names
+# AM_MAKEINFOHTMLFLAGS += --number-sections
 
-all-local: info html pdf
+EXTRA_DIST           += avrdude.css
+AM_MAKEINFOHTMLFLAGS += --css-include=$(srcdir)/avrdude.css
 
-html: avrdude-html/avrdude.html
+AM_MAKEINFOHTMLFLAGS += --split=node
 
-avrdude-html/avrdude.html: $(srcdir)/$(info_TEXINFOS) $(GENERATED_TEXINFOS)
-	texi2html --split=node --css-include=$(srcdir)/avrdude.css $(srcdir)/$(info_TEXINFOS)
-	if [ -e ./avrdude.html -o -e ./avrdude_1.html ]; then \
-	 mkdir -p avrdude-html ; \
-	 mv -f *.html avrdude-html ; \
+info_TEXINFOS    += avrdude.texi
+avrdude_TEXINFOS  =
+
+
+if ENABLED_DOC
+all-local: html pdf
+install-data-local: install-html install-pdf
+all-local: thtml
+install-data-local: install-thtml
+endif # ENABLED_DOC
+
+
+########################################################################
+# Use texi2html to produce HTML output (like cmake build)
+#
+# The texi2html output looks very different from the makeinfo HTML
+# output and uses very different file names, so this emulates what the
+# cmake build does.
+########################################################################
+
+TEXI2HTML = texi2html
+TEXI2HTMLFLAGS =
+TEXI2HTMLFLAGS += --split=node
+TEXI2HTMLFLAGS += --css-include=$(srcdir)/avrdude.css
+
+thtml: avrdude.thtml
+avrdude.thtml: avrdude.texi $(srcdir)/version.texi $(srcdir)/avrdude.css $(avrdude_TEXINFOS)
+	$(AM_V_at)rm -rf $(@:.thtml=.tmphtml)
+	$(AM_V_at)if $(TEXI2HTML) -o avrdude.tmphtml $(TEXI2HTMLFLAGS) `test -f 'avrdude.texi' || echo '$(srcdir)/'`avrdude.texi; then \
+	  rm -rf $@ && mv $(@:.thtml=.tmphtml) $@; \
 	else \
-	 rm -rf avrdude-html; \
-	 mv -f avrdude avrdude-html; \
-	fi;
+	  rm -rf $(@:.thtml=.tmphtml); exit 1; \
+	fi
 
-$(builddir)/avrdude.info: $(GENERATED_TEXINFOS)
-$(builddir)/avrdude.dvi: $(GENERATED_TEXINFOS)
-$(builddir)/avrdude.pdf: $(GENERATED_TEXINFOS)
+install-thtml: avrdude.thtml
+	$(MKDIR_P) $(DESTDIR)$(htmldir)
+	$(MKDIR_P) $(DESTDIR)$(htmldir)/avrdude.thtml
+	$(INSTALL_DATA) avrdude.thtml/* $(DESTDIR)$(htmldir)/avrdude.thtml
+
+
+########################################################################
+# Run the recently built avrdude to produce documentation files
+########################################################################
 
 # if it does not exist make this first
 ../avrdude$(EXEEXT):
 	$(MAKE) -C .. avrdude$(EXEEXT)
 
+EXTRA_DIST += programmers.sed
+avrdude_TEXINFOS += $(builddir)/programmers.texi
 $(builddir)/programmers.texi: ../avrdude$(EXEEXT) ../avrdude.conf $(srcdir)/programmers.sed Makefile
 	../avrdude$(EXEEXT) -C ../avrdude.conf -c \? 2>&1 \
 	|  grep = | sed -f $(srcdir)/programmers.sed \
 	>programmers.texi
 
+avrdude_TEXINFOS += $(builddir)/programmer_types.texi
 $(builddir)/programmer_types.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
 	../avrdude$(EXEEXT) -C ../avrdude.conf -c \?type 2>&1 \
 	| $(AWK) '$$2 ~ /^=$$/ {printf("@item @code{%s} @tab %s\n",$$1,gensub("[^=]+=[ \t]*","",1))}' \
 	| sed "s#<\?\(http://[^ \t,>]*\)>\?#@url{\1}#g" \
 	>programmer_types.texi
 
+EXTRA_DIST += parts.sed
+avrdude_TEXINFOS += $(builddir)/parts.texi
 $(builddir)/parts.texi: ../avrdude$(EXEEXT) ../avrdude.conf $(srcdir)/parts.sed Makefile
 	../avrdude$(EXEEXT) -C ../avrdude.conf -p \? 2>&1 \
 	| grep = | sed -f $(srcdir)/parts.sed \
 	>parts.texi
 
+avrdude_TEXINFOS += $(builddir)/avrstats.texi
 $(builddir)/avrstats.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
 	: > avrstats.texi
 	echo -n "@set NUMPARTS " >> avrstats.texi
 	../avrdude$(EXEEXT) -C ../avrdude.conf -p \? 2>&1 | grep = | wc -l >> avrstats.texi
 	echo -n "@set NUMPROGRAMMERS " >> avrstats.texi
 	../avrdude$(EXEEXT) -C ../avrdude.conf -c \? 2>&1 | grep = | wc -l >> avrstats.texi
-
-clean-local:
-	rm -rf avrdude-html *.info
-
-install-data-local: install-docs
-
-install-docs: html pdf
-	$(mkinstalldirs) $(DOC_INST_DIR)
-	$(INSTALL_DATA) avrdude.pdf $(DOC_INST_DIR)/avrdude.pdf
-	$(mkinstalldirs) $(DOC_INST_DIR)/avrdude-html
-	@list=`echo avrdude-html/*.html`; \
-		for file in $$list; \
-		do \
-			$(INSTALL_DATA) $$file $(DOC_INST_DIR)/$$file; \
-		done
-
-uninstall-local:
-	rm -rf $(DOC_INST_DIR)
