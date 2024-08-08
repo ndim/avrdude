@@ -183,6 +183,7 @@ fi
 dnl Makefile.am:77: compiling `config_gram.c' with per-target flags requires `AM_PROG_CC_C_O' in `configure.ac'
 AM_PROG_CC_C_O
 
+dnl Use given TEXI2HTML, autodetect in PATH otherwise
 AC_ARG_VAR([TEXI2HTML], [texi2html converter])
 AS_IF([test "x$TEXI2HTML" = x], [dnl
   AC_PATH_PROG([TEXI2HTML], [texi2html], [no])
