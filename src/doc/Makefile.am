@@ -47,11 +47,11 @@ endif # ENABLED_DOC
 
 
 ########################################################################
-# Use texi2html to produce HTML output (like cmake build)
+# Use texi2html to produce HTML output (just like the cmake build does)
 #
 # The texi2html output looks very different from the makeinfo HTML
-# output and uses very different file names, so this emulates what the
-# cmake build does.
+# output (which is the Automake default) and it uses very different
+# file names, so these rules replicated what the cmake build does.
 ########################################################################
 
 TEXI2HTMLFLAGS =
@@ -60,7 +60,7 @@ TEXI2HTMLFLAGS += --css-include=$(srcdir)/avrdude.css
 
 thtml: avrdude.thtml
 avrdude.thtml: avrdude.texi $(srcdir)/version.texi $(srcdir)/avrdude.css $(avrdude_TEXINFOS)
-	$(AM_V_at)rm -rf $(@:.thtml=.tmphtml)
+	$(AM_V_GEN)rm -rf $(@:.thtml=.tmphtml)
 	$(AM_V_at)if $(TEXI2HTML) $(TEXI2HTMLFLAGS) -o $(@:.thtml=.tmphtml) `test -f 'avrdude.texi' || echo '$(srcdir)/'`avrdude.texi; then \
 	  rm -rf $@ && mv $(@:.thtml=.tmphtml) $@; \
 	else \
@@ -82,37 +82,40 @@ install-thtml: avrdude.thtml
 	$(MAKE) -C .. avrdude$(EXEEXT)
 
 EXTRA_DIST       += programmers.sed
-CLEANFILES       += $(builddir)/programmers.texi
-avrdude_TEXINFOS += $(builddir)/programmers.texi
-$(builddir)/programmers.texi: ../avrdude$(EXEEXT) ../avrdude.conf $(srcdir)/programmers.sed Makefile
-	../avrdude$(EXEEXT) -C ../avrdude.conf -c \? 2>&1 \
-	|  grep = | sed -f $(srcdir)/programmers.sed \
+CLEANFILES       += programmers.texi
+avrdude_TEXINFOS += programmers.texi
+programmers.texi: ../avrdude$(EXEEXT) ../avrdude.conf $(srcdir)/programmers.sed Makefile
+	$(AM_V_GEN)../avrdude$(EXEEXT) -C ../avrdude.conf -c "?" 2>&1 \
+	| $(GREP) = | $(SED) -f $(srcdir)/programmers.sed \
 	>programmers.texi
 
-CLEANFILES       += $(builddir)/programmer_types.texi
-avrdude_TEXINFOS += $(builddir)/programmer_types.texi
-$(builddir)/programmer_types.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
-	../avrdude$(EXEEXT) -C ../avrdude.conf -c \?type 2>&1 \
+CLEANFILES       += programmer_types.texi
+avrdude_TEXINFOS += programmer_types.texi
+programmer_types.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
+	$(AM_V_GEN)../avrdude$(EXEEXT) -C ../avrdude.conf -c "?type" 2>&1 \
 	| $(AWK) '$$2 ~ /^=$$/ {printf("@item @code{%s} @tab %s\n",$$1,gensub("[^=]+=[ \t]*","",1))}' \
 	| sed "s#<\?\(http://[^ \t,>]*\)>\?#@url{\1}#g" \
 	>programmer_types.texi
 
 EXTRA_DIST       += parts.sed
-CLEANFILES       += $(builddir)/parts.texi
-avrdude_TEXINFOS += $(builddir)/parts.texi
-$(builddir)/parts.texi: ../avrdude$(EXEEXT) ../avrdude.conf $(srcdir)/parts.sed Makefile
-	../avrdude$(EXEEXT) -C ../avrdude.conf -p \? 2>&1 \
-	| grep = | sed -f $(srcdir)/parts.sed \
+CLEANFILES       += parts.texi
+avrdude_TEXINFOS += parts.texi
+parts.texi: ../avrdude$(EXEEXT) ../avrdude.conf $(srcdir)/parts.sed Makefile
+	$(AM_V_GEN)../avrdude$(EXEEXT) -C ../avrdude.conf -p "?" 2>&1 \
+	| $(GREP) = | $(SED) -f $(srcdir)/parts.sed \
 	>parts.texi
 
-CLEANFILES       += $(builddir)/avrstats.texi
-avrdude_TEXINFOS += $(builddir)/avrstats.texi
-$(builddir)/avrstats.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
+CLEANFILES       += avrstats.texi
+avrdude_TEXINFOS += avrstats.texi
+avrstats.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
 	: > avrstats.texi
 	echo -n "@set NUMPARTS " >> avrstats.texi
-	../avrdude$(EXEEXT) -C ../avrdude.conf -p \? 2>&1 | grep = | wc -l >> avrstats.texi
+	../avrdude$(EXEEXT) -C ../avrdude.conf -p "?" 2>&1 | grep = | wc -l >> avrstats.texi
 	echo -n "@set NUMPROGRAMMERS " >> avrstats.texi
-	../avrdude$(EXEEXT) -C ../avrdude.conf -c \? 2>&1 | grep = | wc -l >> avrstats.texi
+	../avrdude$(EXEEXT) -C ../avrdude.conf -c "?" 2>&1 | grep = | wc -l >> avrstats.texi
+
+
+########################################################################
 
 # FIXME: Why does this have no effect on avrdude.info?
 dist-hook:
