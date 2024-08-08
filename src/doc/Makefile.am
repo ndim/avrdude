@@ -40,6 +40,7 @@ avrdude_TEXINFOS  =
 if ENABLED_DOC
 all-local: html pdf
 install-data-local: install-html install-pdf
+
 all-local: thtml
 install-data-local: install-thtml
 endif # ENABLED_DOC
