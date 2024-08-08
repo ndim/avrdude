@@ -40,23 +40,28 @@ avrdude_TEXINFOS  =
 if ENABLED_DOC
 all-local: html pdf
 install-data-local: install-html install-pdf
-
-all-local: thtml
-install-data-local: install-thtml
 endif # ENABLED_DOC
 
 
 ########################################################################
 # Use texi2html to produce HTML output (just like the cmake build does)
 #
-# The texi2html output looks very different from the makeinfo HTML
-# output (which is the Automake default) and it uses very different
-# file names, so these rules replicated what the cmake build does.
+# While the avrdude cmake build uses texi2html to produce HTML from
+# texinfo sources, the default Automake rules for generating HTML from
+# texinfo use makeinfo's html output.
+#
+# As the texi2html output looks different and it uses very different
+# file names, these rules replicate what the cmake build does.
 ########################################################################
 
 TEXI2HTMLFLAGS =
 TEXI2HTMLFLAGS += --split=node
 TEXI2HTMLFLAGS += --css-include=$(srcdir)/avrdude.css
+
+if ENABLED_DOC
+all-local: thtml
+install-data-local: install-thtml
+endif # ENABLED_DOC
 
 thtml: avrdude.thtml
 avrdude.thtml: avrdude.texi $(srcdir)/version.texi $(srcdir)/avrdude.css $(avrdude_TEXINFOS)
@@ -71,6 +76,10 @@ install-thtml: avrdude.thtml
 	$(MKDIR_P) $(DESTDIR)$(htmldir)
 	$(MKDIR_P) $(DESTDIR)$(htmldir)/avrdude.thtml
 	$(INSTALL_DATA) avrdude.thtml/* $(DESTDIR)$(htmldir)/avrdude.thtml
+
+clean-local: clean-local-avrdude.thtml
+clean-local-avrdude.thtml:
+	rm -rf avrdude.thtml
 
 
 ########################################################################
