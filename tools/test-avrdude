@@ -58,6 +58,7 @@ while getopts ":\?hbc:d:e:lp:st:Tv" opt; do
     s) skip_eeprom=1
         ;;
     t) tmp="$OPTARG"
+       test -d "$tmp" || { echo "error: -t argument must be a directory"; exit 1; }
         ;;
     T) addtests=1
         ;;
