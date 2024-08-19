@@ -314,8 +314,9 @@ jobs:
           env
           CFLAGS="-I/opt/homebrew/include"
           LDFLAGS="-L/opt/homebrew/lib"
+
           ../src/configure
-          --prefix=$PWD/_prefix
+          --prefix=$PWD/../_prefix
       - name: Build
         run: make -C _ambuild -j$(nproc)
       - name: "avrdude -? (not installed)"
