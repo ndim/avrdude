@@ -157,7 +157,7 @@ if ! type "$avrdude_bin" >/dev/null 2>&1; then
 fi
 
 if [[ $verbose -eq 1 ]]; then
-    echo "tmp=$tmp"
+    echo "BEFORE normalization: tmp=$tmp"
     id
     ls -ld "$tmp"
     tmpfile="$tmp/date.txt$$"
@@ -167,6 +167,17 @@ if [[ $verbose -eq 1 ]]; then
 fi
 
 [[ -d $tmp && -w $tmp ]] || tmp=/tmp # Fall back to /tmp if tmp directory unusable
+
+if [[ $verbose -eq 1 ]]; then
+    echo "AFTER normalization: tmp=$tmp"
+    id
+    ls -ld "$tmp"
+    tmpfile="$tmp/date.txt$$"
+    date > "$tmpfile"
+    cat "$tmpfile"
+    rm -f "$tmpfile"
+fi
+
 status=$(mktemp "$tmp/$progname.status.XXXXXX")
 logfile=$(mktemp "$tmp/$progname.log.XXXXXX")
 outfile=$(mktemp "$tmp/$progname.out.XXXXXX")
