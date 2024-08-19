@@ -63,6 +63,7 @@ jobs:
           mkdir _ambuild && cd _ambuild
 
           ../src/configure
+          --enable-shared
           --enable-doc
           --enable-parport
           --enable-linuxgpio
@@ -75,6 +76,14 @@ jobs:
         run: printf "\n\n" | ./tools/test-avrdude -v -e _ambuild/avrdude -c '-C _ambuild/avrdude.conf' -d0 -p"-cdryrun -pm2560" -p"-cdryrun -pavr64du28"
       - name: Install
         run: sudo make -C _ambuild install
+      - name: Debug Information
+        run: >-
+          find /usr/local -not -type d -ipath '*avrdude*'
+
+          ldd /usr/local/bin/avrdude
+
+          ldconfig -N -X -v
+
       - name: "Dryrun test (installed)"
         run: >-
           export LD_LIBRARY_PATH="/usr/local/lib";
@@ -248,6 +257,10 @@ jobs:
         run: build/src/avrdude -?
       - name: "Dryrun test (not installed)"
         run: printf "\n\n" | ./tools/test-avrdude -v -e build/src/avrdude -c '-C build/src/avrdude.conf' -d0 -p"-cdryrun -pm2560" -p"-cdryrun -pavr64du28"
+      - name: Install
+        run: sudo cmake --build build --target install
+      - name: "Dryrun test (installed)"
+        run: printf "\n\n" | ./tools/test-avrdude -v -d0 -p"-cdryrun -pm2560" -p"-cdryrun -pavr64du28"
       - name: Archive build artifacts
         if: always()
         uses: actions/upload-artifact@v3
@@ -289,18 +302,47 @@ jobs:
           pkg-config
       - name: Configure
         run: >-
-          ./src/bootstrap
+          autoreconf -vis src
 
           mkdir _ambuild && cd _ambuild
 
-          CFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib" ../src/configure
-          
+          env
+          CFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib"
+          ../src/configure
       - name: Build
         run: make -C _ambuild -j$(nproc)
       - name: "avrdude -? (not installed)"
         run: _ambuild/avrdude -?
       - name: "Dryrun test (not installed)"
         run: printf "\n\n" | ./tools/test-avrdude -v -e _ambuild/avrdude -c '-C _ambuild/avrdude.conf' -d0 -p"-cdryrun -pm2560" -p"-cdryrun -pavr64du28"
+      - name: Debug Information
+        run: |
+          (set -ex; for pkg in libelf libusb hidapi libftdi readline libserialport; do
+            brew list "$pkg"
+          done)
+
+          ls -l /opt/homebrew/Cellar
+
+          ls -l /opt/homebrew/bin
+
+          ls -l /opt/homebrew/include
+
+          ls -l /opt/homebrew/lib
+
+          echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH"
+
+          (set -ex; for pkg in libelf libusb-1.0 hidapi libftdi1 readline libserialport; do
+            if test "x$pkg" = xreadline; then continue; fi
+            pkg-config --cflags "$pkg"
+            pkg-config --libs "$pkg"
+          done)
+      - name: Install
+        run: sudo make -C _ambuild install
+      - name: "Dryrun test (installed)"
+        run: >-
+          export DYLD_LIBRARY_PATH=/usr/local/lib
+
+          printf "\n\n" | ./tools/test-avrdude -v -d0 -p"-cdryrun -pm2560" -p"-cdryrun -pavr64du28"
 
   msvc:
     runs-on: windows-latest
@@ -333,6 +375,8 @@ jobs:
           -B build
       - name: Build
         run: cmake --build build --config ${{env.BUILD_TYPE}}
+      - name: Debug output build
+        run: Get-ChildItem -Path build -Force –Recurse
       - name: "avrdude -? (not installed)"
         # FIXME: Skip running avrdude.
         #        The exe file on arm64 is not runnable - x86_64 perhaps?
@@ -346,6 +390,9 @@ jobs:
           $tmp = [System.IO.Path]::GetTempPath()
           $tmp_slash = $tmp -replace '\\', '/'
           Write-Host "`n`n" -NoNewline | bash tools/test-avrdude -v -t "$tmp_slash" -e build/src/${{env.BUILD_TYPE}}/avrdude.exe -c "-C build/src/avrdude.conf" -d0 -p"-cdryrun -pm2560" -p"-cdryrun -pavr64du28"
+      # Installing requires non-existing python312_d.lib from swig_avrdude.vcxproj
+      #- name: Install
+      #  run: cmake --build build --target install
       - name: Archive build artifacts
         if: always()
         uses: actions/upload-artifact@v3
@@ -414,6 +461,19 @@ jobs:
       # Disabled so far due to problems writing to temp files.
       # - name: "Dryrun test (not installed)"
       #   run: printf "\n\n" | ./tools/test-avrdude -v -e build/src/avrdude.exe -c "-C build/src/avrdude.conf" -d0 -p"-cdryrun -pm2560" -p"-cdryrun -pavr64du28"
+      - name: "Dryrun test (not installed)"
+        run: |
+          tmpdir="$PWD/tmp$$"
+          mkdir "$tmpdir"
+          echo "tmpdir=$tmpdir"
+          ls -lR "$tmpdir"
+          echo "TEMP=$TEMP"
+          ls -lR "$TEMP"
+          printf "\n\n" | ./tools/test-avrdude -v -t "$TEMP" -e build/src/avrdude.exe -c "-C build/src/avrdude.conf" -d0 -p"-cdryrun -pm2560" -p"-cdryrun -pavr64du28"
+      - name: Install
+        run: cmake --build build --target install
+      - name: "Dryrun test (installed)"
+        run: printf "\n\n" | ./tools/test-avrdude -v -t "$TEMP" -d0 -p"-cdryrun -pm2560" -p"-cdryrun -pavr64du28"
       - name: Archive build artifacts
         if: always()
         uses: actions/upload-artifact@v3
