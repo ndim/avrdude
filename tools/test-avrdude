@@ -156,6 +156,16 @@ if ! type "$avrdude_bin" >/dev/null 2>&1; then
     exit 1
 fi
 
+if [[ $verbose -eq 1 ]]; then
+    echo "tmp=$tmp"
+    id
+    ls -ld "$tmp"
+    tmpfile="$tmp/date.txt$$"
+    date > "$tmpfile"
+    cat "$tmpfile"
+    rm -f "$tmpfile"
+fi
+
 [[ -d $tmp && -w $tmp ]] || tmp=/tmp # Fall back to /tmp if tmp directory unusable
 status=$(mktemp "$tmp/$progname.status.XXXXXX")
 logfile=$(mktemp "$tmp/$progname.log.XXXXXX")
