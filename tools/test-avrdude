@@ -285,8 +285,13 @@ for (( p=0; p<$arraylength; p++ )); do
     bench_eewr_size=$((ee_size/6)) # Approximate(!) size of file holes_pack_my_box_${ee_size}B.hex
 
     if [[ -z "$flash_size" ]]; then
-      echo "Cannot detect flash; check that \"${pgm_and_target[$p]}\" are valid avrdude options; skipping this test"
-      continue
+	echo "Cannot detect flash; check that \"${pgm_and_target[$p]}\" are valid avrdude options; skipping this test"
+	set -ex
+	$avrdude_bin $avrdude_conf -c dryrun -p $part -T 'part -m'
+	$avrdude_bin $avrdude_conf -c dryrun -p $part -T 'part -m' 2>/dev/null | grep flash
+	$avrdude_bin $avrdude_conf -c dryrun -p $part -T 'part -m' 2>/dev/null | grep flash | awk '{print $2}'
+	set +ex
+	continue
     fi
 
     # Memories that may or may not be present
