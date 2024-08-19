@@ -246,6 +246,7 @@ jobs:
       - name: Configure
         run: >-
           cmake
+          -D CMAKE_INSTALL_PREFIX:PATH=$PWD/_prefix
           -D CMAKE_C_FLAGS=-I/opt/homebrew/include
           -D CMAKE_EXE_LINKER_FLAGS=-L/opt/homebrew/Cellar
           -D DEBUG_CMAKE=1
@@ -258,9 +259,13 @@ jobs:
       - name: "Dryrun test (not installed)"
         run: printf "\n\n" | ./tools/test-avrdude -v -e build/src/avrdude -c '-C build/src/avrdude.conf' -d0 -p"-cdryrun -pm2560" -p"-cdryrun -pavr64du28"
       - name: Install
-        run: sudo cmake --build build --target install
+        run: cmake --build build --target install
       - name: "Dryrun test (installed)"
-        run: printf "\n\n" | ./tools/test-avrdude -v -d0 -p"-cdryrun -pm2560" -p"-cdryrun -pavr64du28"
+        run: |
+          set -x
+          export PATH="$PWD/_prefix/bin:$PATH"
+          : export DYLD_LIBRARY_PATH="$PWD/_prefix/lib${DYLD_LIBRARY_PATH+":$DYLD_LIBRARY_PATH"}"
+          printf "\n\n" | ./tools/test-avrdude -v -d0 -p"-cdryrun -pm2560" -p"-cdryrun -pavr64du28"
       - name: Archive build artifacts
         if: always()
         uses: actions/upload-artifact@v3
@@ -307,8 +312,10 @@ jobs:
           mkdir _ambuild && cd _ambuild
 
           env
-          CFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib"
+          CFLAGS="-I/opt/homebrew/include"
+          LDFLAGS="-L/opt/homebrew/lib"
           ../src/configure
+          --prefix=$PWD/_prefix
       - name: Build
         run: make -C _ambuild -j$(nproc)
       - name: "avrdude -? (not installed)"
@@ -337,11 +344,12 @@ jobs:
             pkg-config --libs "$pkg"
           done)
       - name: Install
-        run: sudo make -C _ambuild install
+        run: make -C _ambuild install
       - name: "Dryrun test (installed)"
         run: >-
-          export DYLD_LIBRARY_PATH=/usr/local/lib
-
+          set -x;
+          export PATH="$PWD/_prefix/bin:$PATH";
+          : export DYLD_LIBRARY_PATH="$PWD/_prefix/lib${DYLD_LIBRARY_PATH+":$DYLD_LIBRARY_PATH"}";
           printf "\n\n" | ./tools/test-avrdude -v -d0 -p"-cdryrun -pm2560" -p"-cdryrun -pavr64du28"
 
   msvc:
