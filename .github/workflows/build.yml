@@ -234,6 +234,7 @@ jobs:
           readline
           libserialport
           pkg-config
+          swig
       - name: Configure
         run: >-
           cmake
