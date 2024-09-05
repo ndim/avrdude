@@ -168,6 +168,7 @@ jobs:
           cmake
           flex
           bison
+          pkgconf
           crossbuild-essential-${{matrix.arch}}
           libelf-dev:${{matrix.arch}}
           libusb-dev:${{matrix.arch}}
