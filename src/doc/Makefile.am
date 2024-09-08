@@ -72,6 +72,7 @@ $(builddir)/parts.texi: ../avrdude$(EXEEXT) ../avrdude.conf $(srcdir)/parts.sed 
 	>parts.texi
 
 $(builddir)/avrstats.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
+	: > avrstats.texi
 	echo -n "@set NUMPARTS " >> avrstats.texi
 	../avrdude$(EXEEXT) -C ../avrdude.conf -p \? 2>&1 | grep = | wc -l >> avrstats.texi
 	echo -n "@set NUMPROGRAMMERS " >> avrstats.texi
