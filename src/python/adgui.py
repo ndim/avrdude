@@ -24,9 +24,10 @@
 
 import sys
 import os
-import pathlib
 import re
 import time
+
+from pathlib import Path
 
 builddir = None
 if os.name == 'posix':
@@ -56,7 +57,7 @@ def avrdude_init():
 
     found = False
     for d in [builddir, "/etc", "/usr/local/etc"]:
-        p = pathlib.Path(d + "/avrdude.conf")
+        p = Path(d + "/avrdude.conf")
         if p.is_file():
             ad.read_config(d + "/avrdude.conf")
             return (True, f"Found avrdude.conf in {d}")
@@ -523,7 +524,7 @@ class adgui(QObject):
         ad.set_msg_callback(self.msg_callback)
         ad.set_progress_callback(self.progress_callback)
 
-        p = pathlib.Path(argv[0])
+        p = Path(argv[0])
         srcdir = str(p.parent)
         for f in [ "adgui.ui", "about.ui", "device.ui",
                    "devinfo.ui", "loglevel.ui", "programmer.ui",
@@ -1016,7 +1017,7 @@ class adgui(QObject):
             self.memories.load.setEnabled(False)
             self.memories.save.setEnabled(False)
             return
-        p = pathlib.Path(fname)
+        p = Path(fname)
         if p.is_file():
             fmt = ad.fileio_fmt_autodetect(fname)
             if fmt == ad.FMT_ELF:
@@ -1083,7 +1084,7 @@ class adgui(QObject):
             self.log("Internal error: cannot determine file format", ad.MSG_ERROR)
             return
         fname = self.flashname
-        p = pathlib.Path(fname)
+        p = Path(fname)
         if p.is_file():
             result = QMessageBox.question(self.memories,
                                           f"Overwrite {fname}?",
@@ -1172,7 +1173,7 @@ class adgui(QObject):
             self.memories.ee_load.setEnabled(False)
             self.memories.ee_save.setEnabled(False)
             return
-        p = pathlib.Path(fname)
+        p = Path(fname)
         if p.is_file():
             fmt = ad.fileio_fmt_autodetect(fname)
             if fmt == ad.FMT_ELF:
@@ -1239,7 +1240,7 @@ class adgui(QObject):
             self.log("Internal error: cannot determine file format", ad.MSG_ERROR)
             return
         fname = self.eepromname
-        p = pathlib.Path(fname)
+        p = Path(fname)
         if p.is_file():
             result = QMessageBox.question(self.memories,
                                           f"Overwrite {fname}?",
@@ -1344,7 +1345,7 @@ class adgui(QObject):
                 self.log(f"Could not find {fuse} memory", ad.MSG_ERROR)
                 continue
             fname = self.fuse_filename(fuse)
-            p = pathlib.Path(fname)
+            p = Path(fname)
             if p.is_file():
                 fmt = ad.fileio_fmt_autodetect(fname)
                 if fmt == ad.FMT_ELF:
@@ -1457,7 +1458,7 @@ class adgui(QObject):
                 self.log(f"Could not find {fuse} memory", ad.MSG_ERROR)
                 continue
             fname = self.fuse_filename(fuse)
-            p = pathlib.Path(fname)
+            p = Path(fname)
             if p.is_file():
                 result = QMessageBox.question(self.memories,
                                               f"Overwrite {fname}?",
@@ -1495,7 +1496,7 @@ class adgui(QObject):
             # else.  ELF can contain data for all fuses, all other
             # file formats only contain data for a single fuse, so we
             # must ask for which one it is intended.
-            p = pathlib.Path(self.fusename)
+            p = Path(self.fusename)
             if p.is_file():
                 if fmt == ad.FMT_AUTO:
                     fmt = ad.fileio_fmt_autodetect(fname)
