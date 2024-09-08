@@ -249,10 +249,15 @@ distclean-local:
 
 # This will get run before the config file is installed.
 backup-avrdude-conf:
-	@echo "Backing up avrdude.conf in ${DESTDIR}${sysconfdir}"
 	@if test -e ${DESTDIR}${sysconfdir}/avrdude.conf; then \
-		cp -pR ${DESTDIR}${sysconfdir}/avrdude.conf \
-			${DESTDIR}${sysconfdir}/avrdude.conf.bak; \
+	  if cmp ${DESTDIR}${sysconfdir}/avrdude.conf avrdude.conf; then \
+	    echo "No need to back up ${sysconfdir}/avrdude.conf: Same content."; \
+	  else \
+	    echo "Backing up avrdude.conf in ${DESTDIR}${sysconfdir}"; \
+	    cp -pR \
+	      ${DESTDIR}${sysconfdir}/avrdude.conf \
+	      ${DESTDIR}${sysconfdir}/avrdude.conf.bak; \
+	  fi; \
 	fi
 
 ACLOCAL_AMFLAGS = -I auto-m4 -I build-helpers
