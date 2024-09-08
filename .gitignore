@@ -45,6 +45,12 @@ cscope.out
 /src/avrdude-[1-9].[0-9]-20[0-9][0-9][01][0-9][0-3][0-9].tar.*
 /src/avrdude-[1-9].[0-9]-20[0-9][0-9][01][0-9][0-3][0-9]/
 /src/GNUmakefile
+/src/libavrdude_wrap.c
+/src/python/.dirstamp
+/src/python/avrdude-gui
+/src/python/avrdude-gui.stamp
+/src/python/swig-libavrdude.stamp
+/src/python/swig_avrdude.py
 
 *.o
 *.lo

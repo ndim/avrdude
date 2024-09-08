@@ -33,6 +33,10 @@ EXTRA_DIST   = \
 
 BUILT_SOURCES  =
 CLEANFILES     =
+bin_SCRIPTS =
+dist_pkgdata_DATA =
+pyexec_PYTHON =
+python_PYTHON =
 
 built_sources  =
 built_sources += config_gram.c
@@ -43,6 +47,7 @@ BUILT_SOURCES += $(built_sources)
 CLEANFILES    += $(built_sources)
 
 include build-helpers/versioninfo.mk
+include python/include.am
 
 #SUBDIRS      = doc
 #DIST_SUBDIRS = doc

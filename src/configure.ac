@@ -128,6 +128,19 @@ AC_PROG_YACC
 AC_PROG_LEX([noyywrap])
 AM_PROG_AR
 
+AM_PATH_PYTHON([3.8],, [:])
+AM_CONDITIONAL([HAVE_PYTHON], [test "x$PYTHON" != "x:"])
+
+m4_pattern_forbid([AX_PYTHON_DEVEL])dnl
+AX_PYTHON_DEVEL
+
+m4_pattern_forbid([AX_PKG_SWIG])dnl
+AX_PKG_SWIG([], [:], [:])
+AM_CONDITIONAL([HAVE_SWIG], [test "x$SWIG" != x])
+
+m4_pattern_forbid([AX_SWIG_PYTHON])dnl
+AX_SWIG_PYTHON
+
 m4_pattern_forbid([LT_INIT])dnl
 LT_INIT()
 
