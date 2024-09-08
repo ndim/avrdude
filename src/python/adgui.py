@@ -56,6 +56,7 @@ def avrdude_init():
     ad.init_config()
 
     found = False
+    # FIXME: Does not find $(bindir)/../etc/avrdude.conf
     for d in [builddir, "/etc", "/usr/local/etc"]:
         p = Path(d + "/avrdude.conf")
         if p.is_file():
