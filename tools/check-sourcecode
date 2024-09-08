@@ -20,8 +20,8 @@ fail=0
 succ=0
 
 
-checks+=(check_ac_cfg)
-check_ac_cfg() {
+checks+=(check_include_ac_cfg)
+check_include_ac_cfg() {
     if git grep -E '#include\s+"ac_cfg\.h"'
     then
 	echo "Error: Found #include \"ac_cfg.h\" with double quotes \"\". Should be <>."
