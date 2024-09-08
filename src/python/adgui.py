@@ -51,6 +51,7 @@ else:
 
 import swig_avrdude as ad
 
+
 def avrdude_init():
     ad.init_cx()
     ad.init_config()
@@ -814,7 +815,7 @@ class adgui(QObject):
         self.device.devices.clear()
         l = []
         for f in fams:
-            obj = eval('self.device.' + f + '.isChecked()')
+            obj = getattr(self.device, f).isChecked()
             if obj:
                 for d in self.devices[f]:
                     self.device.devices.addItem(d)
@@ -827,7 +828,7 @@ class adgui(QObject):
         self.programmer.programmers.clear()
         l = {}
         for f in fams:
-            obj = eval('self.programmer.' + f + '.isChecked()')
+            obj = getattr(self.programmer, f).isChecked()
             if obj:
                 for d in self.programmers[f]:
                     l[d] = True
@@ -1312,10 +1313,12 @@ class adgui(QObject):
             # "interesting" data in the lineedit entry.
             self.fuselabels[name] = [idx, False]
             name = find_mem_alias(self.dev, name)
-            eval(f"self.memories.fuse{idx}.setText({'name'})")
-            eval(f"self.memories.fuse{idx}.setEnabled(True)")
-            eval(f"self.memories.fuse{idx}.setVisible(True)")
-            eval(f"self.memories.fval{idx}.setVisible(True)")
+            fuse = getattr(self.memories, f"fuse{idx}")
+            fval = getattr(self.memories, f"fval{idx}")
+            fuse.setText(name)
+            fuse.setEnabled(True)
+            fuse.setVisible(True)
+            fval.setVisible(True)
             idx += 1
 
     def ask_fuses_file(self):
@@ -1377,8 +1380,9 @@ class adgui(QObject):
             val = int(m.get(1)[0])
             s = f"{val:02X}"
             (idx, allocated) = self.fuselabels[fuse]
-            eval(f"self.memories.fval{idx}.clear()")
-            eval(f"self.memories.fval{idx}.insert('{s}')")
+            fval = getattr(self.memories, f"fval{idx}")
+            fval.clear()
+            fval.insert(s)
 
     @Slot(QLineEdit)
     def fuseval_changed(self, le):
@@ -1414,7 +1418,7 @@ class adgui(QObject):
                 self.log(f"Could not find {fuse} memory", ad.MSG_ERROR)
                 continue
             slotnumber = self.fuselabels[fuse][0]
-            val = eval(f"self.memories.fval{slotnumber}.text()")
+            val = getattr(self.memories, f"fval{slotnumber}").text()
             if val.isspace():
                 self.log(f"Not programming {fuse} memory: no value", ad.MSG_DEBUG)
                 continue
@@ -1519,8 +1523,9 @@ class adgui(QObject):
                             val = int(m.get(1)[0])
                             s = f"{val:02X}"
                             (idx, allocated) = self.fuselabels[fuse]
-                            eval(f"self.memories.fval{idx}.clear()")
-                            eval(f"self.memories.fval{idx}.insert('{s}')")
+                            fval = getattr(self.memories, f"fval{idx}")
+                            fval.clear()
+                            fval.insert(s)
                             self.fuselabels[fuse][1] = True
                     return
         # proceed with attempting to load all fuses here
@@ -1536,8 +1541,9 @@ class adgui(QObject):
                 val = int(m.get(1)[0])
                 s = f"{val:02X}"
                 (idx, allocated) = self.fuselabels[fuse]
-                eval(f"self.memories.fval{idx}.clear()")
-                eval(f"self.memories.fval{idx}.insert('{s}')")
+                fval = getattr(self.memories, f"fval{idx}")
+                fval.clear()
+                fval.insert(s)
                 self.fuselabels[fuse][1] = True
 
     def fuse_popup(self, widget):

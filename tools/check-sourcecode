@@ -31,6 +31,16 @@ check_include_ac_cfg() {
 }
 
 
+checks+=(check_python_eval)
+check_python_eval() {
+    if git grep -E '\<eval\(' '*.py'
+    then
+	echo "Error: Found eval(...) in python source files (*.py)."
+	return 1
+    fi
+}
+
+
 for check in "${checks[@]}"
 do
     if "$check"; then
