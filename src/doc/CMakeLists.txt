@@ -96,8 +96,9 @@ add_custom_command(
 
 add_custom_command(
     OUTPUT avrdude.info
-    COMMAND ${MAKEINFO_EXECUTABLE} -o avrdude.info ${TEXINFOS}
+    COMMAND ${MAKEINFO_EXECUTABLE} -o doc/avrdude.info ${TEXINFOS}
     DEPENDS ${TEXINFOS} ${GENERATED_TEXINFOS}
+    WORKING_DIRECTORY ..
     VERBATIM
     )
 
@@ -107,9 +108,10 @@ add_custom_command(
         --pdf
         --Xopt=--quiet
         --Xopt=--build-dir=pdf
-        -o avrdude.pdf
+        -o doc/avrdude.pdf
         ${TEXINFOS}
     DEPENDS ${TEXINFOS} ${GENERATED_TEXINFOS}
+    WORKING_DIRECTORY ..
     VERBATIM
     )
 
@@ -118,10 +120,11 @@ add_custom_command(
     COMMAND ${TEXI2HTML_EXECUTABLE}
         --split=node
         --css-include=avrdude.css
-        --output=avrdude-html
+        --output=doc/avrdude-html
         -I ${CMAKE_CURRENT_BINARY_DIR}
         ${TEXINFOS}
     DEPENDS ${TEXINFOS} ${GENERATED_TEXINFOS} avrdude.css
+    WORKING_DIRECTORY ..
     VERBATIM
     )
 
