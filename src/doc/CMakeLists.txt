@@ -83,10 +83,7 @@ add_custom_command(
 add_custom_command(
     OUTPUT avrstats.texi
     DEPENDS avrdude_binaries
-    COMMAND echo -n "@set NUMPARTS " >> avrstats.texi
-    COMMAND $<TARGET_FILE:avrdude> -C ${AVRDUDE_CONF} -p \? 2>&1 | grep = | wc -l >> avrstats.texi
-    COMMAND echo -n "@set NUMPROGRAMMERS " >> avrstats.texi
-    COMMAND $<TARGET_FILE:avrdude> -C ${AVRDUDE_CONF} -c \? 2>&1 | grep = | wc -l >> avrstats.texi
+    COMMAND ${CMAKE_COMMAND} -E printf "@set NUMPARTS %s\\n @set NUMPROGRAMMERS %s\\n" "$($<TARGET_FILE:avrdude> -C ${AVRDUDE_CONF} -p '?' 2>&1 | grep = | wc -l)" "$($<TARGET_FILE:avrdude> -C ${AVRDUDE_CONF} -c '?' 2>&1 | grep = | wc -l)" > avrstats.texi
     VERBATIM
     )
 
