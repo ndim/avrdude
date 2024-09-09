@@ -81,8 +81,8 @@ thtml: %D%/avrdude.thtml
 
 install-thtml: %D%/avrdude.thtml
 	$(MKDIR_P) $(DESTDIR)$(htmldir)
-	$(MKDIR_P) $(DESTDIR)$(htmldir)/avrdude.thtml
-	$(INSTALL_DATA) %D%/avrdude.thtml/* $(DESTDIR)$(htmldir)/avrdude.thtml
+	$(MKDIR_P) $(DESTDIR)$(htmldir)/avrdude-html
+	$(INSTALL_DATA) %D%/avrdude.thtml/* $(DESTDIR)$(htmldir)/avrdude-html
 
 clean-local: clean-local-avrdude.thtml
 clean-local-avrdude.thtml:
