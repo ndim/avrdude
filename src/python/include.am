@@ -15,6 +15,7 @@ pyexec_LTLIBRARIES = %reldir%/_swig_avrdude.la
 %C%__swig_avrdude_la_LDFLAGS += -avoid-version
 %C%__swig_avrdude_la_LDFLAGS += -module
 %C%__swig_avrdude_la_LDFLAGS += -no-undefined
+%C%__swig_avrdude_la_LDFLAGS += -shared
 # %C%__swig_avrdude_la_LDFLAGS += -export-dynamic
 
 %C%__swig_avrdude_la_CPPFLAGS += $(AX_SWIG_PYTHON_CPPFLAGS)
