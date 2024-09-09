@@ -16,25 +16,25 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-CLEANFILES =
-DISTCLEANFILES =
-EXTRA_DIST =
+AM_MAKEINFOFLAGS      =
+AM_MAKEINFOHTMLFLAGS  =
 
-AM_MAKEINFOFLAGS =
-AM_MAKEINFOHTMLFLAGS =
+# Note: $(builddir)/%D% and $(srcdir)/%D% are automatically added to
+#       the makeinfo includes.
+
+AM_MAKEINFOFLAGS     += --verbose
 
 # This does NOT create texi2html compatible HTML file names
 # AM_MAKEINFOHTMLFLAGS += --number-sections
 
-EXTRA_DIST           += avrdude.css
-AM_MAKEINFOHTMLFLAGS += --css-include=$(srcdir)/avrdude.css
+EXTRA_DIST           += %D%/avrdude.css
+AM_MAKEINFOHTMLFLAGS += --css-include=$(srcdir)/%D%/avrdude.css
 
 AM_MAKEINFOHTMLFLAGS += --split=node
 
-info_TEXINFOS = avrdude.texi
-CLEANFILES += avrdude.info
-# DISTCLEANFILES += avrdude.info
-avrdude_TEXINFOS  =
+CLEANFILES           += %D%/avrdude.info
+info_TEXINFOS         = %D%/avrdude.texi
+%C%_avrdude_TEXINFOS  =
 
 
 if ENABLED_DOC
@@ -55,77 +55,93 @@ endif # ENABLED_DOC
 ########################################################################
 
 TEXI2HTMLFLAGS =
+
+TEXI2HTMLFLAGS += --I=$(builddir)/%D%
+TEXI2HTMLFLAGS += --I=$(srcdir)/%D%
+
+TEXI2HTMLFLAGS += --verbose
+
 TEXI2HTMLFLAGS += --split=node
-TEXI2HTMLFLAGS += --css-include=$(srcdir)/avrdude.css
+TEXI2HTMLFLAGS += --css-include=$(srcdir)/%D%/avrdude.css
 
 if ENABLED_DOC
 all-local: thtml
 install-data-local: install-thtml
 endif # ENABLED_DOC
 
-thtml: avrdude.thtml
-avrdude.thtml: avrdude.texi $(srcdir)/version.texi $(srcdir)/avrdude.css $(avrdude_TEXINFOS)
+thtml: %D%/avrdude.thtml
+%D%/avrdude.thtml: %D%/avrdude.texi $(srcdir)/%D%/version.texi $(srcdir)/%D%/avrdude.css $(%C%_avrdude_TEXINFOS)
+	$(AM_V_at)$(MKDIR_P) %D%
 	$(AM_V_GEN)rm -rf $(@:.thtml=.tmphtml)
-	$(AM_V_at)if $(TEXI2HTML) $(TEXI2HTMLFLAGS) -o $(@:.thtml=.tmphtml) `test -f 'avrdude.texi' || echo '$(srcdir)/'`avrdude.texi; then \
+	$(AM_V_at)if $(TEXI2HTML) $(TEXI2HTMLFLAGS) -o $(@:.thtml=.tmphtml) `test -f '%D%/avrdude.texi' || echo '$(srcdir)/'`%D%/avrdude.texi; then \
 	  rm -rf $@ && mv $(@:.thtml=.tmphtml) $@; \
 	else \
 	  rm -rf $(@:.thtml=.tmphtml); exit 1; \
 	fi
 
-install-thtml: avrdude.thtml
+install-thtml: %D%/avrdude.thtml
 	$(MKDIR_P) $(DESTDIR)$(htmldir)
 	$(MKDIR_P) $(DESTDIR)$(htmldir)/avrdude.thtml
-	$(INSTALL_DATA) avrdude.thtml/* $(DESTDIR)$(htmldir)/avrdude.thtml
+	$(INSTALL_DATA) %D%/avrdude.thtml/* $(DESTDIR)$(htmldir)/avrdude.thtml
 
 clean-local: clean-local-avrdude.thtml
 clean-local-avrdude.thtml:
-	rm -rf avrdude.thtml
+	rm -rf %D%/avrdude.thtml
 
 
 ########################################################################
 # Run the recently built avrdude to produce documentation files
 ########################################################################
 
-# if it does not exist make this first
-../avrdude$(EXEEXT):
-	$(MAKE) -C .. avrdude$(EXEEXT)
+EXTRA_DIST           += %D%/programmers.sed
+CLEANFILES           += %D%/programmers.texi
+%C%_avrdude_TEXINFOS += %D%/programmers.texi
+%D%/programmers.texi: avrdude$(EXEEXT) avrdude.conf $(srcdir)/%D%/programmers.sed Makefile
+	$(AM_V_at)$(MKDIR_P) %D%
+	$(AM_V_GEN)./avrdude$(EXEEXT) -C avrdude.conf -c "?" 2>&1 \
+	| $(GREP) = | $(SED) -f $(srcdir)/%D%/programmers.sed \
+	> %D%/programmers.texi
 
-EXTRA_DIST       += programmers.sed
-CLEANFILES       += programmers.texi
-avrdude_TEXINFOS += programmers.texi
-programmers.texi: ../avrdude$(EXEEXT) ../avrdude.conf $(srcdir)/programmers.sed Makefile
-	$(AM_V_GEN)../avrdude$(EXEEXT) -C ../avrdude.conf -c "?" 2>&1 \
-	| $(GREP) = | $(SED) -f $(srcdir)/programmers.sed \
-	>programmers.texi
-
-CLEANFILES       += programmer_types.texi
-avrdude_TEXINFOS += programmer_types.texi
-programmer_types.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
-	$(AM_V_GEN)../avrdude$(EXEEXT) -C ../avrdude.conf -c "?type" 2>&1 \
+CLEANFILES           += %D%/programmer_types.texi
+%C%_avrdude_TEXINFOS += %D%/programmer_types.texi
+%D%/programmer_types.texi: avrdude$(EXEEXT) avrdude.conf Makefile
+	$(AM_V_at)$(MKDIR_P) %D%
+	$(AM_V_GEN)./avrdude$(EXEEXT) -C avrdude.conf -c "?type" 2>&1 \
 	| $(AWK) '$$2 ~ /^=$$/ {printf("@item @code{%s} @tab %s\n",$$1,gensub("[^=]+=[ \t]*","",1))}' \
 	| sed "s#<\?\(http://[^ \t,>]*\)>\?#@url{\1}#g" \
-	>programmer_types.texi
+	> %D%/programmer_types.texi
 
-EXTRA_DIST       += parts.sed
-CLEANFILES       += parts.texi
-avrdude_TEXINFOS += parts.texi
-parts.texi: ../avrdude$(EXEEXT) ../avrdude.conf $(srcdir)/parts.sed Makefile
-	$(AM_V_GEN)../avrdude$(EXEEXT) -C ../avrdude.conf -p "?" 2>&1 \
-	| $(GREP) = | $(SED) -f $(srcdir)/parts.sed \
-	>parts.texi
+EXTRA_DIST           += %D%/parts.sed
+CLEANFILES           += %D%/parts.texi
+%C%_avrdude_TEXINFOS += %D%/parts.texi
+%D%/parts.texi: avrdude$(EXEEXT) avrdude.conf $(srcdir)/%D%/parts.sed Makefile
+	$(AM_V_at)$(MKDIR_P) %D%
+	$(AM_V_GEN)./avrdude$(EXEEXT) -C avrdude.conf -p "?" 2>&1 \
+	| $(GREP) = | $(SED) -f $(srcdir)/%D%/parts.sed \
+	> %D%/parts.texi
 
-CLEANFILES       += avrstats.texi
-avrdude_TEXINFOS += avrstats.texi
-avrstats.texi: ../avrdude$(EXEEXT) ../avrdude.conf Makefile
-	: > avrstats.texi
-	echo -n "@set NUMPARTS " >> avrstats.texi
-	../avrdude$(EXEEXT) -C ../avrdude.conf -p "?" 2>&1 | grep = | wc -l >> avrstats.texi
-	echo -n "@set NUMPROGRAMMERS " >> avrstats.texi
-	../avrdude$(EXEEXT) -C ../avrdude.conf -c "?" 2>&1 | grep = | wc -l >> avrstats.texi
+CLEANFILES           += %D%/avrstats.texi
+%C%_avrdude_TEXINFOS += %D%/avrstats.texi
+%D%/avrstats.texi: avrdude$(EXEEXT) avrdude.conf Makefile
+	$(AM_V_GEN)$(MKDIR_P) %D%
+	$(AM_V_at)if ( set -e; \
+	  echo -n "@set NUMPARTS "; \
+	  ./avrdude$(EXEEXT) -C avrdude.conf -p "?" 2>&1 | grep = | wc -l; \
+	  echo -n "@set NUMPROGRAMMERS "; \
+	  ./avrdude$(EXEEXT) -C avrdude.conf -c "?" 2>&1 | grep = | wc -l; \
+	) > %D%/avrstats.texi.new$$$$; then \
+	  mv -f %D%/avrstats.texi.new$$$$ %D%/avrstats.texi; \
+	else \
+	  rm -f %D%/avrstats.texi.new$$$$; \
+	  echo "Error generating $@"; \
+	  exit 1; \
+	fi
 
 
 ########################################################################
-
 # FIXME: Why does this have no effect on avrdude.info?
-dist-hook:
-	cd "$(distdir)" && rm -f $(DISTCLEANFILES) $(CLEANFILES)
+########################################################################
+
+dist-hook: dist-hook-doc
+dist-hook-doc:
+	cd "$(distdir)" && rm -f $(CLEANFILES)

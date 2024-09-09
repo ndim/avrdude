@@ -14,7 +14,7 @@
 @c @set EDITION 3.2.0
 @c @set VERSION 3.2.0
 
-@include avrstats.texi
+@include doc/avrstats.texi
 @c Contains various statistics used as @value{NUM...} below
 
 @c This is a dir.info fragment to support semi-automated addition of
@@ -3715,7 +3715,7 @@ the polarity of all pins in a list use @code{~(<num1> [, <num2> ... ])}
 The following programmer types are currently implemented:
 
 @multitable @columnfractions .21 .75
-@include programmer_types.texi
+@include doc/programmer_types.texi
 @end multitable
 
 @c
@@ -5112,7 +5112,7 @@ brackets; see @ref{Programmer Definitions}). There is more detail about
 each programmer in the AVRDUDE configuration file.
 
 @multitable @columnfractions .24 .75
-@include programmers.texi
+@include doc/programmers.texi
 @end multitable
 
 @c
@@ -5128,7 +5128,7 @@ brackets; see @ref{Programmer Definitions}).  There is more detail about
 each part in the AVRDUDE configuration file.
 
 @multitable @columnfractions .15 .80
-@include parts.texi
+@include doc/parts.texi
 @end multitable
 
 @noindent

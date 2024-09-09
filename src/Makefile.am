@@ -26,17 +26,18 @@
 #
 # make V=1
 
-EXTRA_DIST   = \
-	avrdude.1 \
-	avrdude.spec \
-	bootstrap
-
 BUILT_SOURCES  =
 CLEANFILES     =
+DISTCLEANFILES =
+EXTRA_DIST     =
+
 bin_SCRIPTS =
 dist_pkgdata_DATA =
 pyexec_PYTHON =
 python_PYTHON =
+
+EXTRA_DIST += avrdude.spec
+EXTRA_DIST += bootstrap
 
 built_sources  =
 built_sources += config_gram.c
@@ -47,10 +48,8 @@ BUILT_SOURCES += $(built_sources)
 CLEANFILES    += $(built_sources)
 
 include build-helpers/versioninfo.mk
+include doc/include.am
 include python/include.am
-
-# . lets build this directory before the following
-SUBDIRS      = . doc
 
 AM_YFLAGS    = -d
 
@@ -237,7 +236,7 @@ avrdude_SOURCES = \
 
 dist_bin_SCRIPTS = elf2tag
 
-man_MANS = avrdude.1
+dist_man1_MANS = avrdude.1
 
 sysconf_DATA = avrdude.conf
 
