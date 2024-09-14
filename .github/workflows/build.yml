@@ -119,7 +119,7 @@ jobs:
           -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
           -B build
       - name: Build
-        run: cmake --build build
+        run: cmake --build build -- -j$(nproc)
       - name: "avrdude -? (not installed)"
         run: build/src/avrdude -?
       - name: "Dryrun test (not installed)"
@@ -195,7 +195,7 @@ jobs:
           -D CMAKE_LIBRARY_PATH=/usr/lib/${{matrix.inc-lib}}
           -B build
       - name: Build
-        run: cmake --build build
+        run: cmake --build build -- -j$(nproc)
       - name: "avrdude -? (not installed)"
         if: matrix.arch == 'i386'
         run: build/src/avrdude -?
@@ -246,7 +246,7 @@ jobs:
           -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
           -B build
       - name: Build
-        run: cmake --build build
+        run: cmake --build build -- -j$(sysctl -n hw.logicalcpu)
       - name: "avrdude -? (not installed)"
         run: build/src/avrdude -?
       - name: "Dryrun test (not installed)"
@@ -301,7 +301,7 @@ jobs:
           CFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib" ../src/configure
           
       - name: Build
-        run: make -C _ambuild -j$(nproc)
+        run: make -C _ambuild -j$(sysctl -n hw.logicalcpu)
       - name: "avrdude -? (not installed)"
         run: _ambuild/avrdude -?
       - name: "Dryrun test (not installed)"
