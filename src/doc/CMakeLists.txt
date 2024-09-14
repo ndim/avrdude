@@ -21,10 +21,15 @@ set(AVRDUDE_CONF "${PROJECT_BINARY_DIR}/src/avrdude.conf")
 set(TEXINFOS "${CMAKE_CURRENT_SOURCE_DIR}/avrdude.texi")
 set(GENERATED_TEXINFOS
     programmers.texi
+    generate_programmers_texi
     programmer_types.texi
+    generate_programmer_types_texi
     parts.texi
+    generate_parts_texi
     avrstats.texi
+    generate_avrstats_texi
     version.texi
+    generate_version_texi
     )
 
 string(TIMESTAMP TODAY "%d %B %Y")
@@ -46,13 +51,7 @@ add_custom_command(
     COMMAND $<TARGET_FILE:avrdude> -C ${AVRDUDE_CONF} -c ? 2>&1 | grep = | sed -f ${CMAKE_CURRENT_SOURCE_DIR}/programmers.sed > programmers.texi
     VERBATIM
     )
-
-add_custom_command(
-    OUTPUT programmer_types.txt
-    DEPENDS avrdude_binaries
-    COMMAND $<TARGET_FILE:avrdude> -C ${AVRDUDE_CONF} -c ?type 2>&1 | more > programmer_types.txt
-    VERBATIM
-    )
+add_custom_target(generate_programmers_texi DEPENDS programmers.texi)
 
 add_custom_command(
     OUTPUT parts.texi
@@ -60,16 +59,26 @@ add_custom_command(
     COMMAND $<TARGET_FILE:avrdude> -C ${AVRDUDE_CONF} -p ? 2>&1 | grep = | sed -f ${CMAKE_CURRENT_SOURCE_DIR}/parts.sed > parts.texi
     VERBATIM
     )
+add_custom_target(generate_parts_texi DEPENDS parts.texi)
+
+add_custom_command(
+    OUTPUT programmer_types.txt
+    DEPENDS avrdude_binaries
+    COMMAND $<TARGET_FILE:avrdude> -C ${AVRDUDE_CONF} -c ?type 2>&1 | more > programmer_types.txt
+    VERBATIM
+    )
+add_custom_target(generate_programmer_types_txt DEPENDS programmer_types.txt)
 
 add_custom_command(
     OUTPUT programmer_types.texi
-    DEPENDS programmer_types.txt
+    DEPENDS generate_programmer_types_txt
     COMMAND ${CMAKE_COMMAND}
         -D TXT_FILE=programmer_types.txt
         -D TEXI_FILE=programmer_types.texi
         -P "${CMAKE_CURRENT_SOURCE_DIR}/programmer_types.cmake"
     VERBATIM
     )
+add_custom_target(generate_programmer_types_texi DEPENDS programmer_types.texi)
 
 add_custom_command(
     OUTPUT version.texi
@@ -79,6 +88,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E echo "@set UPDATED ${DOCS_UPDATED}" >> version.texi
     VERBATIM
     )
+add_custom_target(generate_version_texi DEPENDS version.texi)
 
 add_custom_command(
     OUTPUT avrstats.texi
@@ -89,6 +99,7 @@ add_custom_command(
     COMMAND $<TARGET_FILE:avrdude> -C ${AVRDUDE_CONF} -c '?' 2>&1 | grep = | wc -l >> avrstats.texi
     VERBATIM
     )
+add_custom_target(generate_avrstats_texi DEPENDS avrstats.texi)
 
 # =====================================
 # Custom rules for output files
