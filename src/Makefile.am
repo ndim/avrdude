@@ -239,6 +239,7 @@ avrdude_SOURCES = \
 if REQUIRE_ARGP_SOURCES
 avrdude_CPPFLAGS += -I$(srcdir)/gnulib
 avrdude_SOURCES  += gnulib/argp.h
+avrdude_SOURCES  += gnulib/getopt_int.h
 avrdude_SOURCES  += gnulib/argp-parse.c
 endif
 
