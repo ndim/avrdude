@@ -347,7 +347,15 @@ add_executable(avrdude
     whereami.h
     ${CMAKE_CURRENT_BINARY_DIR}/ac_cfg.h
     ${EXTRA_WINDOWS_RESOURCES}
+    ${AVRDUDE_ARGP_SOURCES}
     )
+
+CHECK_SYMBOL_EXISTS(argp_parse argp.h HAVE_ARGP_PARSE)
+if(HAVE_ARGP_PARSE)
+else()
+  target_sources(avrdude PUBLIC gnulib/argp-parse.c)
+  target_include_directories(avrdude PUBLIC "${PROJECT_SOURCE_DIR}/gnulib")
+endif()
 
 target_link_libraries(avrdude PUBLIC libavrdude)
 
