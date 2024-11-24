@@ -172,6 +172,28 @@ dnl Makefile.am:77: compiling `config_gram.c' with per-target flags requires `AM
 AM_PROG_CC_C_O
 
 # Checks for libraries.
+
+# Check whether the argp API (argp_parse() etc.) is available out of
+# the box or whether we need to compile and link against
+# `gnulib/argp*.c`.
+AC_MSG_CHECKING([whether compile and link works for argp_parse() etc])
+AC_LINK_IFELSE([AC_LANG_SOURCE([[
+#include <argp.h>
+
+int main(int argc, char *argv[]) {
+  error_t e = argp_parse(NULL, argc, argv, 0, NULL, NULL);
+  return (e != 0) ? 0 : 1;
+}
+]])], [dnl
+  AC_MSG_RESULT([yes])
+  avrdude_require_argp_sources=no
+], [dnl
+  AC_MSG_RESULT([no])
+  avrdude_require_argp_sources=yes
+])
+AM_CONDITIONAL([REQUIRE_ARGP_SOURCES],
+               [test "x$avrdude_require_argp_sources" = xyes])
+
 # For MinGW.
 AC_CHECK_LIB([ws2_32], [WSAStartup])
 

@@ -236,6 +236,12 @@ avrdude_SOURCES = \
 	developer_opts.h \
 	developer_opts_private.h
 
+if REQUIRE_ARGP_SOURCES
+avrdude_CPPFLAGS += -I$(srcdir)/gnulib
+avrdude_SOURCES  += gnulib/argp.h
+avrdude_SOURCES  += gnulib/argp-parse.c
+endif
+
 dist_bin_SCRIPTS = elf2tag
 
 man_MANS = avrdude.1

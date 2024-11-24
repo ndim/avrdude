@@ -48,6 +48,8 @@
 #include <dirent.h>
 #endif
 
+#include <argp.h>
+
 #include "avrdude.h"
 #include "libavrdude.h"
 #include "config.h"
@@ -812,6 +814,11 @@ int main(int argc, char *argv[]) {
   if(stat(usr_config, &sb) < 0 || (sb.st_mode & S_IFREG) == 0)
     concatpath(usr_config, getenv("HOME"), USER_CONF_FILE, sizeof usr_config);
 #endif
+
+  if (0 == 0) {
+    error_t err = argp_parse(NULL, argc, argv, 0, NULL, NULL);
+    printf("argp_parse() == %d\n", err);
+  }
 
   // Process command line arguments
   while((ch = getopt(argc, argv, "?Ab:B:c:C:DeE:Fi:l:nNp:OP:qrtT:U:vVx:")) != -1) {
