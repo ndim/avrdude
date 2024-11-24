@@ -354,7 +354,7 @@ CHECK_SYMBOL_EXISTS(argp_parse argp.h HAVE_ARGP_PARSE)
 if(HAVE_ARGP_PARSE)
 else()
   target_sources(avrdude PUBLIC gnulib/argp-parse.c)
-  target_include_directories(avrdude PUBLIC "${PROJECT_SOURCE_DIR}/gnulib")
+  target_include_directories(avrdude PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/gnulib")
 endif()
 
 target_link_libraries(avrdude PUBLIC libavrdude)
